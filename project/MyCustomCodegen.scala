@@ -22,14 +22,19 @@ class MyCustomCodegen(model: Model) extends SourceCodeGenerator(model) {
 
       override def rawType = model.tpe match {
         case "java.sql.Date"      => "java.time.LocalDate"
+        case tpe if isPrimaryKey =>
+          s"${entityName(model.table.table)}Id"
         case _ =>
           super.rawType
       }
     }
     override def EntityType = new EntityType {
+      final lazy val primaryKeyClasses: Seq[String] = model.columns.filter(_.options.contains(ColumnOption.PrimaryKey)).map { column =>
+        s"\ncase class ${name}Id(value: ${column.tpe}) extends MappedTo[${column.tpe}] {\n  @inline override def toString = value.toString\n}"
+      }
 
       override def code: String =
-        super.code + s"\nobject $rawName {\n  implicit val ${name}Format = Json.format[$rawName]\n}"
+        super.code + primaryKeyClasses.mkString + s"\nobject $rawName {\n  implicit val ${name}Format = Json.format[$rawName]\n}"
     }
 
     override def PlainSqlMapper = new PlainSqlMapper {
