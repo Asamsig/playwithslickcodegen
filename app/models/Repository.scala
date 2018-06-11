@@ -20,6 +20,8 @@ class Repository @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
     * List data from the database.
     */
   def list() = db.run {
-    EmployeesTable.join(SalariesTable).on(_.empNo === _.empNo).take(100).result
+    val query = EmployeesTable.take(100).result
+    println(query.statements.mkString)
+    query
   }
 }
