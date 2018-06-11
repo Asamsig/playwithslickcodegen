@@ -27,3 +27,9 @@ slickCodegenJdbcDriver := "com.mysql.jdbc.Driver"
 slickCodegenOutputPackage := "models"
 slickCodegenCodeGenerator := { new MyCustomCodegen(_) }
 slickCodegenExcludedTables := Seq()
+
+PB.protoSources in Compile := Seq((resourceDirectory in Compile).value / "protobuf")
+PB.targets in Compile := Seq(
+  scalapb.gen() -> (sourceManaged in Compile).value
+)
+

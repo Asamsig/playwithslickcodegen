@@ -1,19 +1,14 @@
 package controllers
 
 import javax.inject._
-
 import models._
-import play.api.data.Form
-import play.api.data.Forms._
-import play.api.data.validation.Constraints._
+import models.demo.Employee
 import play.api.libs.json.Json
 import play.api.mvc._
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
-class Controller @Inject()(repo: Repository)(
-    implicit ec: ExecutionContext
-) extends InjectedController {
+class Controller @Inject()(repo: Repository)(implicit ec: ExecutionContext) extends InjectedController {
 
   /**
     * The index action.
@@ -27,7 +22,19 @@ class Controller @Inject()(repo: Repository)(
     */
   def get = Action.async { implicit request =>
     repo.list().map { data =>
-      Ok(Json.toJson(data))
+      val employeesAsProtoString = data.map(
+        employee =>
+          employee ->
+            Json.obj("proto" -> Employee(
+            employee.empNo,
+            employee.firstName,
+            employee.lastName,
+            Employee.Gender.fromName(employee.gender).get,
+            employee.birthDate.toString,
+            employee.hireDate.toString
+        ).toByteString.toStringUtf8)
+      )
+      Ok(Json.toJson(employeesAsProtoString))
     }
   }
 }
