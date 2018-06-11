@@ -1,19 +1,4 @@
-@(people: Form[CreatePersonForm])(implicit request: MessagesRequestHeader)
-
-@import helper._
-
-@request.flash.get("success").map { key =>
-   @request.messages(key)
-}
+@()
 
 @main("Welcome to Play") {
-  @form(routes.PersonController.addPerson()) {
-		@inputText(people("name"))
-		@inputText(people("age"))
-		@CSRF.formField
-
-		<div class="buttons">
-			<input type="submit" value="Add Person"/>
-		</div>
-	}
 }
